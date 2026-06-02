@@ -35,3 +35,7 @@ logging:
   level:
     root: INFO
     com.alea.pokemon: DEBUG
+
+alea:
+  pokeapi:
+    base-url: https://pokeapi.co/api/v2
