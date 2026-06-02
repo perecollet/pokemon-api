@@ -42,7 +42,8 @@ class PokeApiClientTest {
         RestClient restClient = RestClient.builder()
                 .baseUrl(wireMock.baseUrl())
                 .build();
-        client = new PokeApiClient(restClient);
+        PokeApiHttpClient httpClient = new PokeApiHttpClient(restClient);
+        client = new PokeApiClient(httpClient);
     }
 
     @Test

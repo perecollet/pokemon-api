@@ -39,3 +39,20 @@ logging:
 alea:
   pokeapi:
     base-url: https://pokeapi.co/api/v2
+
+resilience4j:
+  retry:
+    instances:
+      pokeapi:
+        max-attempts: 3
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+  circuitbreaker:
+    instances:
+      pokeapi:
+        sliding-window-size: 20
+        minimum-number-of-calls: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 5

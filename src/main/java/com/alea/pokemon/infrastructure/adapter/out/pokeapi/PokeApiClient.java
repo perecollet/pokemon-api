@@ -7,7 +7,6 @@ import com.alea.pokemon.infrastructure.adapter.out.pokeapi.dto.PokemonListRespon
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,31 +19,23 @@ public class PokeApiClient implements PokemonCatalogProvider {
 
     private static final Logger log = LoggerFactory.getLogger(PokeApiClient.class);
     private static final int CONCURRENCY = 20;
-    private static final int LIST_LIMIT = 2000;
 
-    private final RestClient restClient;
+    private final PokeApiHttpClient httpClient;
 
-    public PokeApiClient(RestClient pokeApiRestClient) {
-        this.restClient = pokeApiRestClient;
+    public PokeApiClient(PokeApiHttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 
     @Override
     public List<Pokemon> fetchAll() {
-        PokemonListResponse list = fetchList();
+        PokemonListResponse list = httpClient.fetchList();
         return fetchDetailsInParallel(list.results());
-    }
-
-    private PokemonListResponse fetchList() {
-        return restClient.get()
-                .uri(uri -> uri.path("/pokemon").queryParam("limit", LIST_LIMIT).build())
-                .retrieve()
-                .body(PokemonListResponse.class);
     }
 
     private List<Pokemon> fetchDetailsInParallel(List<PokemonListResponse.Result> results) {
         try (ExecutorService executor = Executors.newFixedThreadPool(CONCURRENCY)) {
             List<CompletableFuture<Pokemon>> futures = results.stream()
-                    .map(r -> CompletableFuture.supplyAsync(() -> fetchDetail(r.url()), executor))
+                    .map(r -> CompletableFuture.supplyAsync(() -> fetchDetailSafe(r.url()), executor))
                     .toList();
 
             return futures.stream()
@@ -54,12 +45,9 @@ public class PokeApiClient implements PokemonCatalogProvider {
         }
     }
 
-    private Pokemon fetchDetail(String url) {
+    private Pokemon fetchDetailSafe(String url) {
         try {
-            PokemonDetailResponse d = restClient.get()
-                    .uri(url)
-                    .retrieve()
-                    .body(PokemonDetailResponse.class);
+            PokemonDetailResponse d = httpClient.fetchDetail(url);
             return new Pokemon(d.id(), d.name(), d.baseExperience(), d.height(), d.weight());
         } catch (Exception e) {
             log.warn("Failed to fetch Pokemon detail at {}: {}", url, e.getMessage());
