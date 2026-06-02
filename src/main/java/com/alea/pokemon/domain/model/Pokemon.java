@@ -1,11 +1,20 @@
 package com.alea.pokemon.domain.model;
 
+/**
+ * Domain model for a Pokémon.
+ *
+ * Units follow PokéAPI conventions:
+ * - weight in hectograms (1 hg = 100 g)
+ * - height in decimeters (1 dm = 10 cm)
+ *
+ * Unit conversion happens at the API boundary (response DTO).
+ */
 public record Pokemon (
         Integer id,
         String name,
-        int weight,
+        Integer baseExperience,
         int height,
-        Integer baseExperience
+        int weight
 ){
     public Pokemon {
         if (id == null || id <= 0) {
@@ -14,11 +23,11 @@ public record Pokemon (
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("name must not be blank");
         }
-        if (weight < 0) {
-            throw new IllegalArgumentException("weight must not be negative");
-        }
         if (height < 0) {
             throw new IllegalArgumentException("height must not be negative");
+        }
+        if (weight < 0) {
+            throw new IllegalArgumentException("weight must not be negative");
         }
     }
 }
