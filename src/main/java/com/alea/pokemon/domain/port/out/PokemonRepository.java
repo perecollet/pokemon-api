@@ -15,4 +15,6 @@ public interface PokemonRepository {
     List<Pokemon> findTopByBaseExperience(int limit);
 
     boolean isEmpty();
+
+    long count();
 }

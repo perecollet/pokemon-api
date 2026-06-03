@@ -173,4 +173,17 @@ class JpaPokemonRepositoryTest {
             assertThat(repository.isEmpty()).isFalse();
         }
     }
+
+    @Nested
+    @DisplayName("count")
+    class Count {
+        @Test
+        @DisplayName("count returns number of stored pokemons")
+        void countReturnsStoredAmount() {
+            repository.saveAll(List.of(pikachu, charizard, snorlax));
+
+            assertThat(repository.count()).isEqualTo(3);
+        }
+    }
+
 }

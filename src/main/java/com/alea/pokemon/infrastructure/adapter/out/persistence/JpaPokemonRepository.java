@@ -42,13 +42,18 @@ public class JpaPokemonRepository implements PokemonRepository {
 
     @Override
     public List<Pokemon> findTopByBaseExperience(int limit) {
-        return jpaRepository.findTop5ByBaseExperienceDescNullsLast(PageRequest.of(0,5)).stream()
+        return jpaRepository.findTop5ByBaseExperienceDescNullsLast(PageRequest.of(0, 5)).stream()
                 .map(mapper::toDomain)
                 .toList();
     }
 
     @Override
     public boolean isEmpty() {
-        return jpaRepository.count() == 0;
+        return count() == 0;
+    }
+
+    @Override
+    public long count() {
+        return jpaRepository.count();
     }
 }
