@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface PokemonCatalogProvider {
 
-    List<Pokemon> fetchAll();
+    List<Pokemon> fetchSince(long offset);
 }

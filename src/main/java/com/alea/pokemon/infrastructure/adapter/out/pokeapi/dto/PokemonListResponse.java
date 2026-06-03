@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record PokemonListResponse(List<Result> results) {
+public record PokemonListResponse(int count, List<Result> results) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Result(String name, String url) {}

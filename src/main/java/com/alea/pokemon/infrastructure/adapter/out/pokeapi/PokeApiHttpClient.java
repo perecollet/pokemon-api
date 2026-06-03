@@ -10,8 +10,6 @@ import org.springframework.web.client.RestClient;
 @Component
 public class PokeApiHttpClient {
 
-    private static final int LIST_LIMIT = 2000;
-
     private final RestClient restClient;
 
     public PokeApiHttpClient(RestClient pokeApiRestClient) {
@@ -20,9 +18,12 @@ public class PokeApiHttpClient {
 
     @Retry(name = "pokeapi")
     @CircuitBreaker(name = "pokeapi")
-    public PokemonListResponse fetchList() {
+    public PokemonListResponse fetchList(int offset, int limit) {
         return restClient.get()
-                .uri(uri -> uri.path("/pokemon").queryParam("limit", LIST_LIMIT).build())
+                .uri(uri -> uri.path("/pokemon")
+                        .queryParam("offset", offset)
+                        .queryParam("limit", limit)
+                        .build())
                 .retrieve()
                 .body(PokemonListResponse.class);
     }

@@ -27,9 +27,20 @@ public class PokeApiClient implements PokemonCatalogProvider {
     }
 
     @Override
-    public List<Pokemon> fetchAll() {
-        PokemonListResponse list = httpClient.fetchList();
-        return fetchDetailsInParallel(list.results());
+    public List<Pokemon> fetchSince(long offset) {
+        PokemonListResponse first = httpClient.fetchList(0,1);
+        int remoteTotal = first.count();
+
+        if (offset >= remoteTotal) {
+            log.info("No new Pokemon to fetch (local={}, remote={})", offset, remoteTotal);
+            return List.of();
+        }
+
+        int newCount = (int) (remoteTotal - offset);
+        log.info("Fetching {} new Pokemon (offset={}, remote total={})", newCount, offset, remoteTotal);
+
+        PokemonListResponse listing = httpClient.fetchList((int) offset, newCount);
+        return fetchDetailsInParallel(listing.results());
     }
 
     private List<Pokemon> fetchDetailsInParallel(List<PokemonListResponse.Result> results) {

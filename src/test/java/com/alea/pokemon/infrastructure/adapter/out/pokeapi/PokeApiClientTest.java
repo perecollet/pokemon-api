@@ -2,20 +2,12 @@ package com.alea.pokemon.infrastructure.adapter.out.pokeapi;
 
 import com.alea.pokemon.domain.model.Pokemon;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -76,7 +68,7 @@ class PokeApiClientTest {
                     {"id": 25, "name": "pikachu", "base_experience": 112, "height": 4, "weight": 60}
                     """)));
 
-        List<Pokemon> result = client.fetchAll();
+        List<Pokemon> result = client.fetchSince(0);
 
         assertThat(result)
                 .extracting(Pokemon::name)
@@ -109,7 +101,7 @@ class PokeApiClientTest {
         wireMock.stubFor(get(urlPathEqualTo("/pokemon/999/"))
                 .willReturn(serverError()));
 
-        List<Pokemon> result = client.fetchAll();
+        List<Pokemon> result = client.fetchSince(0);
 
         assertThat(result)
                 .extracting(Pokemon::name)
@@ -136,9 +128,24 @@ class PokeApiClientTest {
                     {"id": 999, "name": "mystery", "base_experience": null, "height": 10, "weight": 100}
                     """)));
 
-        List<Pokemon> result = client.fetchAll();
+        List<Pokemon> result = client.fetchSince(0);
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).baseExperience()).isNull();
+        assertThat(result.getFirst().baseExperience()).isNull();
+    }
+
+    @Test
+    @DisplayName("returns empty when offset equals remote total")
+    void noNewPokemons() {
+        wireMock.stubFor(get(urlPathEqualTo("/pokemon"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("""
+                {"count": 5, "results": []}
+                """)));
+
+        List<Pokemon> result = client.fetchSince(5);
+
+        assertThat(result).isEmpty();
     }
 }
