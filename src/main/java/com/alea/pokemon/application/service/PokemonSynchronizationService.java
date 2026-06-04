@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class PokemonSynchronizationService implements SynchronizePokemonUseCase {
@@ -18,6 +19,7 @@ public class PokemonSynchronizationService implements SynchronizePokemonUseCase 
 
     private final PokemonCatalogProvider catalogProvider;
     private final PokemonRepository repository;
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
     public PokemonSynchronizationService(PokemonCatalogProvider catalogProvider, PokemonRepository repository) {
         this.catalogProvider = catalogProvider;
@@ -27,8 +29,12 @@ public class PokemonSynchronizationService implements SynchronizePokemonUseCase 
     @Override
     @CacheEvict(value = {"topByWeight", "topByHeight", "topByBaseExperience"}, allEntries = true)
     public void synchronize() {
-        log.info("Starting Pokemon catalog synchronization");
+        if (!running.compareAndSet(false, true)) {
+            log.info("Synchronization already in progress, skipping");
+            return;
+        }
         try {
+            log.info("Starting Pokemon catalog synchronization");
             long offset = repository.count();
             List<Pokemon> newOnes = catalogProvider.fetchSince(offset);
             if (!newOnes.isEmpty()) {
@@ -39,6 +45,8 @@ public class PokemonSynchronizationService implements SynchronizePokemonUseCase 
             }
         } catch (Exception e) {
             log.error("Synchronization failed, keeping existing data", e);
+        } finally {
+            running.set(false);
         }
     }
 }
