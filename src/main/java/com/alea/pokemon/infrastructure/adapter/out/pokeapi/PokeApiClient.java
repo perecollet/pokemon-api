@@ -6,6 +6,7 @@ import com.alea.pokemon.infrastructure.adapter.out.pokeapi.dto.PokemonDetailResp
 import com.alea.pokemon.infrastructure.adapter.out.pokeapi.dto.PokemonListResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,14 +19,14 @@ import java.util.concurrent.Executors;
 public class PokeApiClient implements PokemonCatalogProvider {
 
     private static final Logger log = LoggerFactory.getLogger(PokeApiClient.class);
-    private static final int CONCURRENCY = 20;
 
     private final PokeApiHttpClient httpClient;
+    private final int concurrency;
 
-    public PokeApiClient(PokeApiHttpClient httpClient) {
+    public PokeApiClient(PokeApiHttpClient httpClient, @Value("${alea.pokeapi.fetch-concurrency:20}") int concurrency) {
         this.httpClient = httpClient;
+        this.concurrency = concurrency;
     }
-
     @Override
     public List<Pokemon> fetchSince(long offset) {
         PokemonListResponse first = httpClient.fetchList(0,1);
@@ -44,7 +45,7 @@ public class PokeApiClient implements PokemonCatalogProvider {
     }
 
     private List<Pokemon> fetchDetailsInParallel(List<PokemonListResponse.Result> results) {
-        try (ExecutorService executor = Executors.newFixedThreadPool(CONCURRENCY)) {
+        try (ExecutorService executor = Executors.newFixedThreadPool(concurrency)) {
             List<CompletableFuture<Pokemon>> futures = results.stream()
                     .map(r -> CompletableFuture.supplyAsync(() -> fetchDetailSafe(r.url()), executor))
                     .toList();
