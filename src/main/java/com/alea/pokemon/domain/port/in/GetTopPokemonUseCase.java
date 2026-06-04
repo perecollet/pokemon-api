@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface GetTopPokemonUseCase {
 
+    int MAX_LIMIT = 50;
+
     List<Pokemon> byWeight(int limit);
 
     List<Pokemon> byHeight(int limit);
