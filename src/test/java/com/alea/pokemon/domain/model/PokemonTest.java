@@ -127,7 +127,7 @@ class PokemonTest {
     class Equality {
 
         @Test
-        @DisplayName("two Pokemons with same fields are equal")
+        @DisplayName("two Pokémon with same fields are equal")
         void equalByValue() {
             Pokemon p1 = new Pokemon(25, "pikachu", 112, 4, 60);
             Pokemon p2 = new Pokemon(25, "pikachu", 112, 4, 60);
@@ -137,7 +137,7 @@ class PokemonTest {
         }
 
         @Test
-        @DisplayName("two Pokemons with different ids are not equal")
+        @DisplayName("two Pokémon with different ids are not equal")
         void notEqualWhenDifferentId() {
             Pokemon p1 = new Pokemon(25, "pikachu", 112, 4, 60);
             Pokemon p2 = new Pokemon(26, "pikachu", 112, 4, 60);

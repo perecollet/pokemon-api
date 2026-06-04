@@ -22,8 +22,8 @@ public class JpaPokemonRepository implements PokemonRepository {
 
     @Override
     @Transactional
-    public void saveAll(List<Pokemon> pokemons) {
-        List<PokemonEntity> entities = pokemons.stream()
+    public void saveAll(List<Pokemon> pokemon) {
+        List<PokemonEntity> entities = pokemon.stream()
                 .map(mapper::toEntity)
                 .toList();
         jpaRepository.saveAll(entities);

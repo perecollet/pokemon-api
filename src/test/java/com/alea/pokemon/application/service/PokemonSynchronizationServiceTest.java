@@ -34,8 +34,8 @@ class PokemonSynchronizationServiceTest {
     private final Pokemon pikachu = new Pokemon(25, "pikachu", 112, 4, 60);
 
     @Test
-    @DisplayName("fetches new pokemons from current offset and saves them")
-    void synchronizesNewPokemons() {
+    @DisplayName("fetches new Pokémon from current offset and saves them")
+    void synchronizesNewPokemon() {
         when(repository.count()).thenReturn(0L);
         when(catalogProvider.fetchSince(0L)).thenReturn(List.of(pikachu));
 
@@ -45,7 +45,7 @@ class PokemonSynchronizationServiceTest {
     }
 
     @Test
-    @DisplayName("does not save when no new pokemons available")
+    @DisplayName("does not save when no new Pokémon available")
     void noOpWhenUpToDate() {
         when(repository.count()).thenReturn(1351L);
         when(catalogProvider.fetchSince(1351L)).thenReturn(List.of());
@@ -67,7 +67,7 @@ class PokemonSynchronizationServiceTest {
     }
 
     @Test
-    @DisplayName("evicts cache when new pokemons are synchronized")
+    @DisplayName("evicts cache when new Pokémon are synchronized")
     void evictsCacheOnNewData() {
         when(repository.count()).thenReturn(0L);
         when(catalogProvider.fetchSince(0L)).thenReturn(List.of(pikachu));
@@ -78,7 +78,7 @@ class PokemonSynchronizationServiceTest {
     }
 
     @Test
-    @DisplayName("does not evict cache when there are no new pokemons")
+    @DisplayName("does not evict cache when there are no new Pokémon")
     void noEvictWhenUpToDate() {
         when(repository.count()).thenReturn(1351L);
         when(catalogProvider.fetchSince(1351L)).thenReturn(List.of());

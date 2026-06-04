@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface PokemonRepository {
 
-    void saveAll(List<Pokemon> pokemons);
+    void saveAll(List<Pokemon> pokemon);
 
     List<Pokemon> findTopByWeight(int limit);
 

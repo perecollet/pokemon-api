@@ -34,7 +34,7 @@ class PokemonControllerTest {
     private final Pokemon charizard = new Pokemon(6, "charizard", 267, 17, 905);
 
     @Test
-    @DisplayName("GET /heaviest returns top pokemons with units converted")
+    @DisplayName("GET /heaviest returns top Pokémon with units converted")
     void getHeaviest() throws Exception {
         when(useCase.byWeight(5)).thenReturn(List.of(charizard, pikachu));
 
@@ -48,7 +48,7 @@ class PokemonControllerTest {
     }
 
     @Test
-    @DisplayName("GET /tallest returns top pokemons by height")
+    @DisplayName("GET /tallest returns top Pokémon by height")
     void getTallest() throws Exception {
         when(useCase.byHeight(5)).thenReturn(List.of(charizard));
 
@@ -58,7 +58,7 @@ class PokemonControllerTest {
     }
 
     @Test
-    @DisplayName("GET /most-experienced returns top pokemons by base experience")
+    @DisplayName("GET /most-experienced returns top Pokémon by base experience")
     void getMostExperienced() throws Exception {
         when(useCase.byBaseExperience(5)).thenReturn(List.of(charizard));
 

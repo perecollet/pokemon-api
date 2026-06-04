@@ -39,8 +39,8 @@ class PokeApiClientTest {
     }
 
     @Test
-    @DisplayName("fetches all pokemons combining list and detail endpoints")
-    void fetchesAllPokemons() {
+    @DisplayName("fetches all Pokémon combining list and detail endpoints")
+    void fetchesAllPokemon() {
         wireMock.stubFor(get(urlPathEqualTo("/pokemon"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -136,7 +136,7 @@ class PokeApiClientTest {
 
     @Test
     @DisplayName("returns empty when offset equals remote total")
-    void noNewPokemons() {
+    void noNewPokemon() {
         wireMock.stubFor(get(urlPathEqualTo("/pokemon"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")

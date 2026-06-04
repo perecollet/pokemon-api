@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -63,8 +62,8 @@ class JpaPokemonRepositoryTest {
     class SaveAll {
 
         @Test
-        @DisplayName("persists pokemons to the database")
-        void persistsPokemons() {
+        @DisplayName("persists Pokémon to the database")
+        void persistsPokemon() {
             repository.saveAll(List.of(pikachu, charizard));
 
             assertThat(jpaRepository.count()).isEqualTo(2);
@@ -106,7 +105,7 @@ class JpaPokemonRepositoryTest {
         }
 
         @Test
-        @DisplayName("returns empty list when no pokemons stored")
+        @DisplayName("returns empty list when no Pokémon stored")
         void returnsEmptyWhenNoData() {
             List<Pokemon> result = repository.findTopByWeight(5);
 
@@ -183,7 +182,7 @@ class JpaPokemonRepositoryTest {
         }
 
         @Test
-        @DisplayName("returns false after saving pokemons")
+        @DisplayName("returns false after saving Pokémon")
         void notEmptyAfterSave() {
             repository.saveAll(List.of(pikachu));
 
@@ -195,7 +194,7 @@ class JpaPokemonRepositoryTest {
     @DisplayName("count")
     class Count {
         @Test
-        @DisplayName("count returns number of stored pokemons")
+        @DisplayName("count returns number of stored Pokémon")
         void countReturnsStoredAmount() {
             repository.saveAll(List.of(pikachu, charizard, snorlax));
 

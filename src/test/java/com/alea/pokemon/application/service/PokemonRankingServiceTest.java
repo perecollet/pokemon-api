@@ -39,7 +39,7 @@ class PokemonRankingServiceTest {
     class ByWeight {
 
         @Test
-        @DisplayName("returns cached heaviest pokemons sliced by limit")
+        @DisplayName("returns cached heaviest Pokémon sliced by limit")
         void returnsCachedHeaviest() {
             when(repository.isEmpty()).thenReturn(false);
             when(cache.heaviest()).thenReturn(List.of(snorlax, charizard, pikachu));
@@ -64,7 +64,7 @@ class PokemonRankingServiceTest {
     class ByHeight {
 
         @Test
-        @DisplayName("returns cached tallest pokemons sliced by limit")
+        @DisplayName("returns cached tallest Pokémon sliced by limit")
         void returnsCachedTallest() {
             when(repository.isEmpty()).thenReturn(false);
             when(cache.tallest()).thenReturn(List.of(snorlax, charizard, pikachu));
@@ -89,7 +89,7 @@ class PokemonRankingServiceTest {
     class ByBaseExperience {
 
         @Test
-        @DisplayName("returns cached most experienced pokemons sliced by limit")
+        @DisplayName("returns cached most experienced Pokémon sliced by limit")
         void returnsCachedMostExperienced() {
             when(repository.isEmpty()).thenReturn(false);
             when(cache.mostExperienced()).thenReturn(List.of(charizard, snorlax, pikachu));
