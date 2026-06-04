@@ -39,6 +39,8 @@ logging:
 alea:
   pokeapi:
     base-url: https://pokeapi.co/api/v2
+  sync:
+    interval: PT24H
 
 resilience4j:
   retry:
