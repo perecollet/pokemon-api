@@ -15,12 +15,14 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PokemonRankingService")
 class PokemonRankingServiceTest {
+
+    @Mock
+    private RankingCacheReader cache;
 
     @Mock
     private PokemonRepository repository;
@@ -37,15 +39,14 @@ class PokemonRankingServiceTest {
     class ByWeight {
 
         @Test
-        @DisplayName("delegates to repository.findTopByWeight")
-        void delegatesToRepository() {
+        @DisplayName("returns cached heaviest pokemons sliced by limit")
+        void returnsCachedHeaviest() {
             when(repository.isEmpty()).thenReturn(false);
-            when(repository.findTopByWeight(5)).thenReturn(List.of(snorlax, charizard, pikachu));
+            when(cache.heaviest()).thenReturn(List.of(snorlax, charizard, pikachu));
 
             List<Pokemon> result = service.byWeight(5);
 
             assertThat(result).containsExactly(snorlax, charizard, pikachu);
-            verify(repository).findTopByWeight(5);
         }
 
         @Test
@@ -63,15 +64,14 @@ class PokemonRankingServiceTest {
     class ByHeight {
 
         @Test
-        @DisplayName("delegates to repository.findTopByHeight")
-        void delegatesToRepository() {
+        @DisplayName("returns cached tallest pokemons sliced by limit")
+        void returnsCachedTallest() {
             when(repository.isEmpty()).thenReturn(false);
-            when(repository.findTopByHeight(5)).thenReturn(List.of(snorlax, charizard, pikachu));
+            when(cache.tallest()).thenReturn(List.of(snorlax, charizard, pikachu));
 
             List<Pokemon> result = service.byHeight(5);
 
             assertThat(result).containsExactly(snorlax, charizard, pikachu);
-            verify(repository).findTopByHeight(5);
         }
 
         @Test
@@ -89,15 +89,14 @@ class PokemonRankingServiceTest {
     class ByBaseExperience {
 
         @Test
-        @DisplayName("delegates to repository.findTopByBaseExperience")
-        void delegatesToRepository() {
+        @DisplayName("returns cached most experienced pokemons sliced by limit")
+        void returnsCachedMostExperienced() {
             when(repository.isEmpty()).thenReturn(false);
-            when(repository.findTopByBaseExperience(5)).thenReturn(List.of(charizard, snorlax, pikachu));
+            when(cache.mostExperienced()).thenReturn(List.of(charizard, snorlax, pikachu));
 
             List<Pokemon> result = service.byBaseExperience(5);
 
             assertThat(result).containsExactly(charizard, snorlax, pikachu);
-            verify(repository).findTopByBaseExperience(5);
         }
 
         @Test
@@ -111,18 +110,29 @@ class PokemonRankingServiceTest {
     }
 
     @Nested
-    @DisplayName("limit parameter")
+    @DisplayName("limit handling")
     class LimitHandling {
 
         @Test
-        @DisplayName("passes the configured limit to the repository")
-        void passesLimitToRepository() {
+        @DisplayName("slices cached results to the requested limit")
+        void slicesCachedResults() {
             when(repository.isEmpty()).thenReturn(false);
-            when(repository.findTopByWeight(10)).thenReturn(List.of());
+            when(cache.heaviest()).thenReturn(List.of(snorlax, charizard, pikachu));
 
-            service.byWeight(10);
+            List<Pokemon> result = service.byWeight(2);
 
-            verify(repository).findTopByWeight(10);
+            assertThat(result).containsExactly(snorlax, charizard);
+        }
+
+        @Test
+        @DisplayName("returns all cached results when limit exceeds cached size")
+        void limitExceedsCachedSize() {
+            when(repository.isEmpty()).thenReturn(false);
+            when(cache.heaviest()).thenReturn(List.of(snorlax, charizard));
+
+            List<Pokemon> result = service.byWeight(10);
+
+            assertThat(result).containsExactly(snorlax, charizard);
         }
     }
 }

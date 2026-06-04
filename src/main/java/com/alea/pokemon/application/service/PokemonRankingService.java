@@ -11,28 +11,30 @@ import java.util.List;
 @Service
 public class PokemonRankingService implements GetTopPokemonUseCase {
 
+    private final RankingCacheReader cache;
     private final PokemonRepository repository;
 
-    public PokemonRankingService(PokemonRepository repository) {
+    public PokemonRankingService(RankingCacheReader cache, PokemonRepository repository) {
+        this.cache = cache;
         this.repository = repository;
     }
 
     @Override
     public List<Pokemon> byWeight(int limit) {
         ensureDataReady();
-        return repository.findTopByWeight(limit);
+        return cache.heaviest().stream().limit(limit).toList();
     }
 
     @Override
     public List<Pokemon> byHeight(int limit) {
         ensureDataReady();
-        return repository.findTopByHeight(limit);
+        return cache.tallest().stream().limit(limit).toList();
     }
 
     @Override
     public List<Pokemon> byBaseExperience(int limit) {
         ensureDataReady();
-        return repository.findTopByBaseExperience(limit);
+        return cache.mostExperienced().stream().limit(limit).toList();
     }
 
     private void ensureDataReady() {

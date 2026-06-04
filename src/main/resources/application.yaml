@@ -14,10 +14,18 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
 
   flyway:
     enabled: true
     baseline-on-migrate: true
+
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=10,expireAfterWrite=24h,recordStats
 
 server:
   port: ${SERVER_PORT:8080}
@@ -39,8 +47,9 @@ logging:
 alea:
   pokeapi:
     base-url: https://pokeapi.co/api/v2
-  sync:
-    interval: PT24H
+    sync:
+      enabled: true
+      interval: PT24H
 
 resilience4j:
   retry:
