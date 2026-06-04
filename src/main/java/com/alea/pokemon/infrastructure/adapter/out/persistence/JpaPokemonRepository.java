@@ -3,11 +3,11 @@ package com.alea.pokemon.infrastructure.adapter.out.persistence;
 import com.alea.pokemon.domain.model.Pokemon;
 import com.alea.pokemon.domain.port.out.PokemonRepository;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Component
+@Repository
 public class JpaPokemonRepository implements PokemonRepository {
 
     private final PokemonJpaRepository jpaRepository;
