@@ -43,6 +43,14 @@ class PokemonTest {
             assertThat(pokemon.height()).isZero();
             assertThat(pokemon.weight()).isZero();
         }
+
+        @Test
+        @DisplayName("strips surrounding whitespace from name")
+        void stripsName() {
+            Pokemon pokemon = new Pokemon(25, "  pikachu  ", 112, 4, 60);
+
+            assertThat(pokemon.name()).isEqualTo("pikachu");
+        }
     }
 
     @Nested
