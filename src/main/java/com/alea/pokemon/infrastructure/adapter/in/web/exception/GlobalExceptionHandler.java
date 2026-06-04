@@ -16,6 +16,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PokemonDataNotReadyException.class)
     public ProblemDetail handleDataNotReady(PokemonDataNotReadyException ex) {
+        log.warn("Catalog not ready: {}", ex.getMessage());
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
         problem.setTitle("Catalog not ready");
         return problem;
