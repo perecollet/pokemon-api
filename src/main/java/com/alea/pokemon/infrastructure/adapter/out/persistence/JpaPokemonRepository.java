@@ -4,10 +4,12 @@ import com.alea.pokemon.domain.model.Pokemon;
 import com.alea.pokemon.domain.port.out.PokemonRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Repository
+@Transactional(readOnly = true)
 public class JpaPokemonRepository implements PokemonRepository {
 
     private final PokemonJpaRepository jpaRepository;
@@ -19,6 +21,7 @@ public class JpaPokemonRepository implements PokemonRepository {
     }
 
     @Override
+    @Transactional
     public void saveAll(List<Pokemon> pokemons) {
         List<PokemonEntity> entities = pokemons.stream()
                 .map(mapper::toEntity)
