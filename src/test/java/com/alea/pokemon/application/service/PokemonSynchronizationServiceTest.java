@@ -25,6 +25,9 @@ class PokemonSynchronizationServiceTest {
     @Mock
     private PokemonRepository repository;
 
+    @Mock
+    private CacheInvalidator cacheInvalidator;
+
     @InjectMocks
     private PokemonSynchronizationService service;
 
@@ -61,5 +64,27 @@ class PokemonSynchronizationServiceTest {
         service.synchronize();
 
         verify(repository, never()).saveAll(any());
+    }
+
+    @Test
+    @DisplayName("evicts cache when new pokemons are synchronized")
+    void evictsCacheOnNewData() {
+        when(repository.count()).thenReturn(0L);
+        when(catalogProvider.fetchSince(0L)).thenReturn(List.of(pikachu));
+
+        service.synchronize();
+
+        verify(cacheInvalidator).evictRankings();
+    }
+
+    @Test
+    @DisplayName("does not evict cache when there are no new pokemons")
+    void noEvictWhenUpToDate() {
+        when(repository.count()).thenReturn(1351L);
+        when(catalogProvider.fetchSince(1351L)).thenReturn(List.of());
+
+        service.synchronize();
+
+        verify(cacheInvalidator, never()).evictRankings();
     }
 }

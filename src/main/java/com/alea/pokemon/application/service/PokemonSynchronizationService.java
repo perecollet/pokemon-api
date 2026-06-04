@@ -19,15 +19,16 @@ public class PokemonSynchronizationService implements SynchronizePokemonUseCase 
 
     private final PokemonCatalogProvider catalogProvider;
     private final PokemonRepository repository;
+    private final CacheInvalidator cacheInvalidator;
     private final AtomicBoolean running = new AtomicBoolean(false);
 
-    public PokemonSynchronizationService(PokemonCatalogProvider catalogProvider, PokemonRepository repository) {
+    public PokemonSynchronizationService(PokemonCatalogProvider catalogProvider, PokemonRepository repository, CacheInvalidator cacheInvalidator) {
         this.catalogProvider = catalogProvider;
         this.repository = repository;
+        this.cacheInvalidator = cacheInvalidator;
     }
 
     @Override
-    @CacheEvict(value = {"topByWeight", "topByHeight", "topByBaseExperience"}, allEntries = true)
     public void synchronize() {
         if (!running.compareAndSet(false, true)) {
             log.info("Synchronization already in progress, skipping");
@@ -39,7 +40,8 @@ public class PokemonSynchronizationService implements SynchronizePokemonUseCase 
             List<Pokemon> newOnes = catalogProvider.fetchSince(offset);
             if (!newOnes.isEmpty()) {
                 repository.saveAll(newOnes);
-                log.info("Synchronized {} new Pokemon", newOnes.size());
+                cacheInvalidator.evictRankings();
+                log.info("Synchronized {} new Pokemon and cleared ranking caches", newOnes.size());
             } else {
                 log.info("Catalog up to date, nothing to sync");
             }

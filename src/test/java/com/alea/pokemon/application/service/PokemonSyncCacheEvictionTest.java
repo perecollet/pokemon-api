@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
         classes = {
                 RankingCacheReader.class,
                 PokemonSynchronizationService.class,
+                CacheInvalidator.class,
                 com.alea.pokemon.PokemonApiApplication.class
         }
 )
