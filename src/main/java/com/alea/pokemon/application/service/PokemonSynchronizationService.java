@@ -1,6 +1,7 @@
 package com.alea.pokemon.application.service;
 
 import com.alea.pokemon.domain.model.Pokemon;
+import com.alea.pokemon.domain.port.in.SynchronizePokemonUseCase;
 import com.alea.pokemon.domain.port.out.PokemonCatalogProvider;
 import com.alea.pokemon.domain.port.out.PokemonRepository;
 import org.slf4j.Logger;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class PokemonSynchronizationService {
+public class PokemonSynchronizationService implements SynchronizePokemonUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(PokemonSynchronizationService.class);
 
@@ -23,6 +24,7 @@ public class PokemonSynchronizationService {
         this.repository = repository;
     }
 
+    @Override
     @CacheEvict(value = {"topByWeight", "topByHeight", "topByBaseExperience"}, allEntries = true)
     public void synchronize() {
         log.info("Starting Pokemon catalog synchronization");

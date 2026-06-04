@@ -1,6 +1,6 @@
 package com.alea.pokemon.infrastructure.scheduler;
 
-import com.alea.pokemon.application.service.PokemonSynchronizationService;
+import com.alea.pokemon.domain.port.in.SynchronizePokemonUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +15,7 @@ import static org.mockito.Mockito.verify;
 class PokemonSyncSchedulerTest {
 
     @Mock
-    private PokemonSynchronizationService syncService;
+    private SynchronizePokemonUseCase syncUseCase;
 
     @InjectMocks
     private PokemonSyncScheduler scheduler;
@@ -25,7 +25,7 @@ class PokemonSyncSchedulerTest {
     void runsOnStartup() {
         scheduler.run(null);
 
-        verify(syncService).synchronize();
+        verify(syncUseCase).synchronize();
     }
 
     @Test
@@ -33,6 +33,6 @@ class PokemonSyncSchedulerTest {
     void runsOnSchedule() {
         scheduler.scheduledSync();
 
-        verify(syncService).synchronize();
+        verify(syncUseCase).synchronize();
     }
 }

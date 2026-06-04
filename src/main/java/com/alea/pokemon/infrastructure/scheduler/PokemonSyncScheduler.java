@@ -1,6 +1,6 @@
 package com.alea.pokemon.infrastructure.scheduler;
 
-import com.alea.pokemon.application.service.PokemonSynchronizationService;
+import com.alea.pokemon.domain.port.in.SynchronizePokemonUseCase;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -11,19 +11,19 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "alea.pokeapi.sync.enabled", havingValue = "true", matchIfMissing = true)
 public class PokemonSyncScheduler implements ApplicationRunner {
 
-    private final PokemonSynchronizationService syncService;
+    private final SynchronizePokemonUseCase syncUseCase;
 
-    public PokemonSyncScheduler(PokemonSynchronizationService syncService) {
-        this.syncService = syncService;
+    public PokemonSyncScheduler(SynchronizePokemonUseCase syncUseCase) {
+        this.syncUseCase = syncUseCase;
     }
 
     @Override
     public void run(ApplicationArguments args) {
-        syncService.synchronize();
+        syncUseCase.synchronize();
     }
 
     @Scheduled(fixedDelayString = "${alea.pokeapi.sync.interval:PT24H}")
     public void scheduledSync() {
-        syncService.synchronize();
+        syncUseCase.synchronize();
     }
 }
