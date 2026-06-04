@@ -107,6 +107,18 @@ class JpaPokemonRepositoryTest {
 
             assertThat(result).isEmpty();
         }
+
+        @Test
+        @DisplayName("respects the limit parameter")
+        void respectsLimit() {
+            repository.saveAll(List.of(pikachu, charizard, snorlax, onix, caterpie));
+
+            List<Pokemon> result = repository.findTopByWeight(2);
+
+            assertThat(result)
+                    .extracting(Pokemon::name)
+                    .containsExactly("snorlax", "onix");
+        }
     }
 
     @Nested

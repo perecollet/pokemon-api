@@ -28,21 +28,21 @@ public class JpaPokemonRepository implements PokemonRepository {
 
     @Override
     public List<Pokemon> findTopByWeight(int limit) {
-        return jpaRepository.findTop5ByOrderByWeightDesc().stream()
+        return jpaRepository.findAllByOrderByWeightDesc(PageRequest.of(0,limit)).stream()
                 .map(mapper::toDomain)
                 .toList();
     }
 
     @Override
     public List<Pokemon> findTopByHeight(int limit) {
-        return jpaRepository.findTop5ByOrderByHeightDesc().stream()
+        return jpaRepository.findAllByOrderByHeightDesc(PageRequest.of(0,limit)).stream()
                 .map(mapper::toDomain)
                 .toList();
     }
 
     @Override
     public List<Pokemon> findTopByBaseExperience(int limit) {
-        return jpaRepository.findTop5ByBaseExperienceDescNullsLast(PageRequest.of(0, 5)).stream()
+        return jpaRepository.findAllByBaseExperienceDescNullsLast(PageRequest.of(0,limit)).stream()
                 .map(mapper::toDomain)
                 .toList();
     }

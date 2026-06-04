@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface PokemonJpaRepository extends JpaRepository<PokemonEntity, Integer> {
 
-    List<PokemonEntity> findTop5ByOrderByWeightDesc();
+    List<PokemonEntity> findAllByOrderByWeightDesc(Pageable pageable);
 
-    List<PokemonEntity> findTop5ByOrderByHeightDesc();
+    List<PokemonEntity> findAllByOrderByHeightDesc(Pageable pageable);
 
     @Query("SELECT p FROM PokemonEntity p ORDER BY p.baseExperience DESC NULLS LAST")
-    List<PokemonEntity> findTop5ByBaseExperienceDescNullsLast(Pageable pageable);
+    List<PokemonEntity> findAllByBaseExperienceDescNullsLast(Pageable pageable);
 }
