@@ -16,5 +16,20 @@ services:
       timeout: 3s
       retries: 5
 
+  app:
+    build: .
+    container_name: pokemon-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+
 volumes:
   postgres-data:
