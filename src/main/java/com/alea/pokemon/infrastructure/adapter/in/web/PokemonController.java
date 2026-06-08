@@ -28,19 +28,19 @@ public class PokemonController {
 
     @GetMapping("/heaviest")
     @Operation(summary = "Get the heaviest Pokémon (top 5 by default)")
-    public List<PokemonResponse> heaviest(@RequestParam(defaultValue = "5") @Min(1) @Max(50) int limit) {
+    public List<PokemonResponse> heaviest(@RequestParam(defaultValue = "5") @Min(1) @Max(GetTopPokemonUseCase.MAX_LIMIT) int limit) {
         return useCase.byWeight(limit).stream().map(PokemonResponse::from).toList();
     }
 
     @GetMapping("/tallest")
     @Operation(summary = "Get the tallest Pokémon (top 5 by default)")
-    public List<PokemonResponse> tallest(@RequestParam(defaultValue = "5") @Min(1) @Max(50) int limit) {
+    public List<PokemonResponse> tallest(@RequestParam(defaultValue = "5") @Min(1) @Max(GetTopPokemonUseCase.MAX_LIMIT) int limit) {
         return useCase.byHeight(limit).stream().map(PokemonResponse::from).toList();
     }
 
     @GetMapping("/most-experienced")
     @Operation(summary = "Get the Pokémon with the most base experience (top 5 by default)")
-    public List<PokemonResponse> mostExperienced(@RequestParam(defaultValue = "5") @Min(1) @Max(50) int limit) {
+    public List<PokemonResponse> mostExperienced(@RequestParam(defaultValue = "5") @Min(1) @Max(GetTopPokemonUseCase.MAX_LIMIT) int limit) {
         return useCase.byBaseExperience(limit).stream().map(PokemonResponse::from).toList();
     }
 }

@@ -4,6 +4,7 @@ import com.alea.pokemon.domain.model.Pokemon;
 import com.alea.pokemon.domain.port.out.PokemonCatalogProvider;
 import com.alea.pokemon.infrastructure.adapter.out.pokeapi.dto.PokemonDetailResponse;
 import com.alea.pokemon.infrastructure.adapter.out.pokeapi.dto.PokemonListResponse;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,18 +30,21 @@ public class PokeApiClient implements PokemonCatalogProvider {
     }
     @Override
     public List<Pokemon> fetchSince(long offset) {
-        PokemonListResponse first = httpClient.fetchList(0,1);
-        int remoteTotal = first.count();
+        if (offset > Integer.MAX_VALUE) {
+            throw new IllegalStateException("Offset exceeds int range: " + offset);
+        }
+
+        PokemonListResponse listing = httpClient.fetchList((int) offset, Integer.MAX_VALUE);
+        int remoteTotal = listing.count();
 
         if (offset >= remoteTotal) {
             log.info("No new Pokemon to fetch (local={}, remote={})", offset, remoteTotal);
             return List.of();
         }
 
-        int newCount = (int) (remoteTotal - offset);
-        log.info("Fetching {} new Pokemon (offset={}, remote total={})", newCount, offset, remoteTotal);
+        log.info("Fetching {} new Pokemon (offset={}, remote total={})",
+                listing.results().size(), offset, remoteTotal);
 
-        PokemonListResponse listing = httpClient.fetchList((int) offset, newCount);
         return fetchDetailsInParallel(listing.results());
     }
 
@@ -61,6 +65,9 @@ public class PokeApiClient implements PokemonCatalogProvider {
         try {
             PokemonDetailResponse d = httpClient.fetchDetail(url);
             return new Pokemon(d.id(), d.name(), d.baseExperience(), d.height(), d.weight());
+        } catch (CallNotPermittedException e) {
+            log.debug("Circuit breaker open, skipping {}", url);
+            return null;
         } catch (Exception e) {
             log.warn("Failed to fetch Pokemon detail at {}: {}", url, e.getMessage());
             return null;

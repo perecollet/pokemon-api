@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
@@ -19,14 +20,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(
-        properties = "alea.pokeapi.sync.enabled=false",
         classes = {
                 RankingCacheReader.class,
                 PokemonSynchronizationService.class,
                 CacheInvalidator.class,
-                com.alea.pokemon.PokemonApiApplication.class
+                org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration.class
+        },
+        properties = {
+                "spring.cache.type=caffeine",
+                "spring.cache.caffeine.spec=maximumSize=10,expireAfterWrite=24h,recordStats"
         }
 )
+@EnableCaching
 @DisplayName("Cache eviction on synchronization")
 class PokemonSyncCacheEvictionTest {
 
