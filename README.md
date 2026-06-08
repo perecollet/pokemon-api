@@ -30,6 +30,12 @@ The app exposes:
 
 On startup the application triggers a one-time synchronization against PokéAPI; the first ranking request will return `503` until the catalog is loaded (typically 30–60 seconds).
 
+Once the catalog is loaded, verify with:
+
+```bash
+curl -s http://localhost:8080/api/v1/pokemon/top/heaviest | head -c 200
+```
+
 ### Run locally (app on host, Postgres in Docker)
 
 ```bash
@@ -213,7 +219,7 @@ JaCoCo plugin runs on every build. Report at `target/site/jacoco/index.html`.
 Current coverage focuses on:
 
 - 100% on the domain model.
-- 100% on application services (including cache eviction via Spring-context test).
+- ~94% on application services; the only uncovered branch is the concurrent-sync guard in `PokemonSynchronizationService` (the `AtomicBoolean` skip path).
 - 100% on the JPA adapter.
 - High coverage on the controller and exception handler via `@WebMvcTest`.
 - PokéAPI client via WireMock stubs (success, partial failure, null `base_experience`).
