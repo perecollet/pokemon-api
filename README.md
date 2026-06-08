@@ -163,9 +163,9 @@ The cache stores the **top 50** entries per ranking; the controller slices in me
 
 Instead of refetching all 1351 Pokémon every 24 hours, the service:
 
-1. Fetches `/pokemon?limit=1` to read `count` (the total remote count).
-2. Compares with `repository.count()` locally.
-3. Fetches **only the new range** (`offset = local count`).
+1. Reads `repository.count()` locally to determine the current offset.
+2. Issues a single `GET /pokemon?offset={local_count}&limit={MAX}` request to PokéAPI.
+3. Reads `count` from that same response to verify the remote total, and fetches details only for the new entries.
 
 Since IDs in PokéAPI are sequential and rarely change once assigned, using `repository.count()` as offset is a safe approximation. Limitations of this approach are noted in *Evolution to production*.
 
@@ -230,7 +230,6 @@ Current coverage focuses on:
 
 - **Health**: `/actuator/health` (Postgres connection included).
 - **Metrics**: `/actuator/prometheus` exposes JVM, HTTP request histograms (P50/P95/P99), HikariCP pool, Caffeine hit rates, Resilience4j circuit-breaker state, scheduled-task latencies, Spring Data repository invocations.
-- **Cache stats**: `/actuator/caches` lists cache names and statistics (enabled via `recordStats` on Caffeine).
 - **OpenAPI**: `/v3/api-docs` (raw JSON) and `/swagger-ui.html` (UI).
 
 ---
@@ -316,6 +315,7 @@ A JMeter test plan with realistic profiles (ramp-up, think-time, assertions on P
 |-------|------------|
 | Language | Java 21 |
 | Framework | Spring Boot 3.5 |
+| Concurrency | Java 21 virtual threads (Tomcat request handling) |
 | Database | PostgreSQL 16 |
 | Migration | Flyway |
 | Cache | Caffeine |
