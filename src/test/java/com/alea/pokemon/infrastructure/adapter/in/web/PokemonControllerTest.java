@@ -83,4 +83,14 @@ class PokemonControllerTest {
         mockMvc.perform(get("/api/v1/pokemon/top/heaviest").param("limit", "999"))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @DisplayName("returns 500 for unexpected errors")
+    void returns500OnUnexpectedError() throws Exception {
+        when(useCase.byWeight(5)).thenThrow(new RuntimeException("unexpected"));
+
+        mockMvc.perform(get("/api/v1/pokemon/top/heaviest"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.title").value("Internal server error"));
+    }
 }

@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -86,5 +87,30 @@ class PokemonSynchronizationServiceTest {
         service.synchronize();
 
         verify(cacheInvalidator, never()).evictRankings();
+    }
+
+    @Test
+    @DisplayName("skips when a synchronization is already in progress")
+    void skipsWhenAlreadyRunning() throws Exception {
+        CountDownLatch firstStarted = new CountDownLatch(1);
+        CountDownLatch firstCanFinish = new CountDownLatch(1);
+
+        when(repository.count()).thenReturn(0L);
+        when(catalogProvider.fetchSince(0L)).thenAnswer(inv -> {
+            firstStarted.countDown();
+            firstCanFinish.await();
+            return List.of(pikachu);
+        });
+
+        Thread first = new Thread(service::synchronize);
+        first.start();
+        firstStarted.await();
+
+        service.synchronize();
+
+        firstCanFinish.countDown();
+        first.join();
+
+        verify(catalogProvider, times(1)).fetchSince(0L);
     }
 }

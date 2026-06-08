@@ -298,6 +298,10 @@ Using `repository.count()` as offset assumes:
 
 For the assessment scope this is safe (PokéAPI is append-only). In a production aggregator the safer pattern is to fetch the remote ID set and diff against the local set, accepting the trade-off of one extra listing call.
 
+### Load testing baseline
+
+A JMeter test plan with realistic profiles (ramp-up, think-time, assertions on P95 latency) would establish a performance baseline for the ranking endpoints under sustained load. The current Prometheus histograms already expose the request distribution; what's missing is a controlled scenario to drive them.
+
 ---
 
 ## Stack
@@ -316,23 +320,3 @@ For the assessment scope this is safe (PokéAPI is append-only). In a production
 | Testing | JUnit 5, Mockito, AssertJ, Testcontainers, WireMock |
 | Build | Maven |
 | Container | Multi-stage Dockerfile (Eclipse Temurin 21 JRE Alpine) |
-
----
-
-## Commit history
-
-The commit history follows Conventional Commits and is structured to tell the development story from domain model outward:
-
-1. Project scaffolding and domain model.
-2. Ports (in/out).
-3. Application services with TDD.
-4. Persistence adapter with Flyway and Testcontainers.
-5. PokéAPI client with concurrency control.
-6. Resilience4j integration.
-7. Synchronization service and scheduler.
-8. Web layer with ProblemDetail.
-9. Caffeine cache layer with conditional invalidation.
-10. Observability (Prometheus, Actuator).
-11. Containerization (Dockerfile, full compose stack).
-
-Each commit is scoped to a single concern and passes the full test suite.
