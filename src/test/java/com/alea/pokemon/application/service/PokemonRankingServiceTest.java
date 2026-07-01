@@ -2,7 +2,6 @@ package com.alea.pokemon.application.service;
 
 import com.alea.pokemon.domain.exception.PokemonDataNotReadyException;
 import com.alea.pokemon.domain.model.Pokemon;
-import com.alea.pokemon.domain.port.out.PokemonRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,7 @@ class PokemonRankingServiceTest {
     private RankingCacheReader cache;
 
     @Mock
-    private PokemonRepository repository;
+    private CatalogReadinessGate readinessGate;
 
     @InjectMocks
     private PokemonRankingService service;
@@ -41,7 +40,7 @@ class PokemonRankingServiceTest {
         @Test
         @DisplayName("returns cached heaviest Pokémon sliced by limit")
         void returnsCachedHeaviest() {
-            when(repository.isEmpty()).thenReturn(false);
+            when(readinessGate.awaitReady()).thenReturn(true);
             when(cache.heaviest()).thenReturn(List.of(snorlax, charizard, pikachu));
 
             List<Pokemon> result = service.byWeight(5);
@@ -50,9 +49,9 @@ class PokemonRankingServiceTest {
         }
 
         @Test
-        @DisplayName("throws when catalog is empty")
-        void throwsWhenEmpty() {
-            when(repository.isEmpty()).thenReturn(true);
+        @DisplayName("throws when the catalog does not become ready within the timeout")
+        void throwsWhenNotReady() {
+            when(readinessGate.awaitReady()).thenReturn(false);
 
             assertThatThrownBy(() -> service.byWeight(5))
                     .isInstanceOf(PokemonDataNotReadyException.class);
@@ -66,7 +65,7 @@ class PokemonRankingServiceTest {
         @Test
         @DisplayName("returns cached tallest Pokémon sliced by limit")
         void returnsCachedTallest() {
-            when(repository.isEmpty()).thenReturn(false);
+            when(readinessGate.awaitReady()).thenReturn(true);
             when(cache.tallest()).thenReturn(List.of(snorlax, charizard, pikachu));
 
             List<Pokemon> result = service.byHeight(5);
@@ -75,9 +74,9 @@ class PokemonRankingServiceTest {
         }
 
         @Test
-        @DisplayName("throws when catalog is empty")
-        void throwsWhenEmpty() {
-            when(repository.isEmpty()).thenReturn(true);
+        @DisplayName("throws when the catalog does not become ready within the timeout")
+        void throwsWhenNotReady() {
+            when(readinessGate.awaitReady()).thenReturn(false);
 
             assertThatThrownBy(() -> service.byHeight(5))
                     .isInstanceOf(PokemonDataNotReadyException.class);
@@ -91,7 +90,7 @@ class PokemonRankingServiceTest {
         @Test
         @DisplayName("returns cached most experienced Pokémon sliced by limit")
         void returnsCachedMostExperienced() {
-            when(repository.isEmpty()).thenReturn(false);
+            when(readinessGate.awaitReady()).thenReturn(true);
             when(cache.mostExperienced()).thenReturn(List.of(charizard, snorlax, pikachu));
 
             List<Pokemon> result = service.byBaseExperience(5);
@@ -100,9 +99,9 @@ class PokemonRankingServiceTest {
         }
 
         @Test
-        @DisplayName("throws when catalog is empty")
-        void throwsWhenEmpty() {
-            when(repository.isEmpty()).thenReturn(true);
+        @DisplayName("throws when the catalog does not become ready within the timeout")
+        void throwsWhenNotReady() {
+            when(readinessGate.awaitReady()).thenReturn(false);
 
             assertThatThrownBy(() -> service.byBaseExperience(5))
                     .isInstanceOf(PokemonDataNotReadyException.class);
@@ -116,7 +115,7 @@ class PokemonRankingServiceTest {
         @Test
         @DisplayName("slices cached results to the requested limit")
         void slicesCachedResults() {
-            when(repository.isEmpty()).thenReturn(false);
+            when(readinessGate.awaitReady()).thenReturn(true);
             when(cache.heaviest()).thenReturn(List.of(snorlax, charizard, pikachu));
 
             List<Pokemon> result = service.byWeight(2);
@@ -127,7 +126,7 @@ class PokemonRankingServiceTest {
         @Test
         @DisplayName("returns all cached results when limit exceeds cached size")
         void limitExceedsCachedSize() {
-            when(repository.isEmpty()).thenReturn(false);
+            when(readinessGate.awaitReady()).thenReturn(true);
             when(cache.heaviest()).thenReturn(List.of(snorlax, charizard));
 
             List<Pokemon> result = service.byWeight(10);

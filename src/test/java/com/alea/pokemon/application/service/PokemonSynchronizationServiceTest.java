@@ -6,13 +6,17 @@ import com.alea.pokemon.domain.port.out.PokemonRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.availability.AvailabilityChangeEvent;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -28,6 +32,9 @@ class PokemonSynchronizationServiceTest {
 
     @Mock
     private CacheInvalidator cacheInvalidator;
+
+    @Mock
+    private ApplicationEventPublisher events;
 
     @InjectMocks
     private PokemonSynchronizationService service;
@@ -112,5 +119,31 @@ class PokemonSynchronizationServiceTest {
         first.join();
 
         verify(catalogProvider, times(1)).fetchSince(0L);
+    }
+
+    @Test
+    @DisplayName("publishes CatalogState.LOADED once the catalog contains data")
+    void publishesLoadedWhenDataPresent() {
+        when(repository.count()).thenReturn(0L);
+        when(catalogProvider.fetchSince(0L)).thenReturn(List.of(pikachu));
+        when(repository.isEmpty()).thenReturn(false);
+
+        service.synchronize();
+
+        ArgumentCaptor<AvailabilityChangeEvent> captor = ArgumentCaptor.forClass(AvailabilityChangeEvent.class);
+        verify(events).publishEvent(captor.capture());
+        assertThat(captor.getValue().getState()).isEqualTo(CatalogState.LOADED);
+    }
+
+    @Test
+    @DisplayName("does not signal readiness when the catalog stays empty")
+    void doesNotSignalWhenStillEmpty() {
+        when(repository.count()).thenReturn(0L);
+        when(catalogProvider.fetchSince(0L)).thenThrow(new RuntimeException("PokeAPI down"));
+        when(repository.isEmpty()).thenReturn(true);
+
+        service.synchronize();
+
+        verify(events, never()).publishEvent(any(AvailabilityChangeEvent.class));
     }
 }

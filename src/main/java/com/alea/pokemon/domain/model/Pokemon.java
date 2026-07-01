@@ -1,5 +1,7 @@
 package com.alea.pokemon.domain.model;
 
+import lombok.SneakyThrows;
+
 /**
  * Domain model for a Pokémon.
  *

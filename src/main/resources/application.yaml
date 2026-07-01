@@ -56,6 +56,7 @@ alea:
   pokeapi:
     base-url: https://pokeapi.co/api/v2
     fetch-concurrency: 20
+    readiness-timeout-seconds: 60
     sync:
       enabled: true
       interval: PT24H

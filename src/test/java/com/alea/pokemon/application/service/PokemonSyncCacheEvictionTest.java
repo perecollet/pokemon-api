@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
                 RankingCacheReader.class,
                 PokemonSynchronizationService.class,
                 CacheInvalidator.class,
+                CatalogReadinessGate.class,
                 org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration.class
         },
         properties = {

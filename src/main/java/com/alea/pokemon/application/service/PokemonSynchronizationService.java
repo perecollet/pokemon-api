@@ -6,6 +6,8 @@ import com.alea.pokemon.domain.port.out.PokemonCatalogProvider;
 import com.alea.pokemon.domain.port.out.PokemonRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.availability.AvailabilityChangeEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,12 +21,15 @@ public class PokemonSynchronizationService implements SynchronizePokemonUseCase 
     private final PokemonCatalogProvider catalogProvider;
     private final PokemonRepository repository;
     private final CacheInvalidator cacheInvalidator;
+    private  final ApplicationEventPublisher eventPublisher;
     private final AtomicBoolean running = new AtomicBoolean(false);
 
-    public PokemonSynchronizationService(PokemonCatalogProvider catalogProvider, PokemonRepository repository, CacheInvalidator cacheInvalidator) {
+    public PokemonSynchronizationService(PokemonCatalogProvider catalogProvider, PokemonRepository repository,
+                                         CacheInvalidator cacheInvalidator, ApplicationEventPublisher eventPublisher) {
         this.catalogProvider = catalogProvider;
         this.repository = repository;
         this.cacheInvalidator = cacheInvalidator;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -47,6 +52,9 @@ public class PokemonSynchronizationService implements SynchronizePokemonUseCase 
         } catch (Exception e) {
             log.error("Synchronization failed, keeping existing data", e);
         } finally {
+            if (!repository.isEmpty()) {
+                AvailabilityChangeEvent.publish(eventPublisher, this, CatalogState.LOADED);
+            }
             running.set(false);
         }
     }

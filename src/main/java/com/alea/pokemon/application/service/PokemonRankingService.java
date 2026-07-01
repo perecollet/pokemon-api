@@ -12,11 +12,11 @@ import java.util.List;
 public class PokemonRankingService implements GetTopPokemonUseCase {
 
     private final RankingCacheReader cache;
-    private final PokemonRepository repository;
+    private final CatalogReadinessGate readinessGate;
 
-    public PokemonRankingService(RankingCacheReader cache, PokemonRepository repository) {
+    public PokemonRankingService(RankingCacheReader cache, CatalogReadinessGate readinessGate) {
         this.cache = cache;
-        this.repository = repository;
+        this.readinessGate = readinessGate;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class PokemonRankingService implements GetTopPokemonUseCase {
     }
 
     private void ensureDataReady() {
-        if (repository.isEmpty()) {
+        if (!readinessGate.awaitReady()) {
             throw new PokemonDataNotReadyException();
         }
     }
